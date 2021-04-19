@@ -54,6 +54,35 @@ exports.test = async (rl) => {
   }
 }
 
+exports.play = async (rl) => {
+
+  var quizId = [];
+
+  let quizzes = await Quiz.findAll(
+    { include: [{
+        model: User,
+        as: 'author'
+      }]
+    }
+  );
+  quizzes.forEach( 
+    q => quizId.push(q.id)
+  );
+
+  var id = Math.floor(Math.random(quizId.length) * (quizId.length - 0));
+
+  let quiz = await Quiz.findByPk(id);
+  if (!quiz) throw new Error(`  Quiz '${id}' is not in DB`);
+
+  let answered = await rl.questionP(quiz.question);
+
+  if (answered.toLowerCase().trim()===quiz.answer.toLowerCase().trim()) {
+    rl.log(`  The answer "${answered}" is right!`);
+  } else {
+    rl.log(`  The answer "${answered}" is wrong!`);
+  }
+}
+
 // Update quiz (identified by <id>) in the DB
 exports.update = async (rl) => {
 
